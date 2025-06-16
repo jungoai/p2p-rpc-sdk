@@ -7,7 +7,7 @@ import { identify, identifyPush } from '@libp2p/identify'
 import { tcp } from '@libp2p/tcp'
 import { createLibp2p } from 'libp2p'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
-import * as cmd from './cmd.js'
+import { readKeyFile } from './keypair.js'
 
 export async function runP2p(s: State) {
   const node = await mkNode(s.node)
@@ -84,4 +84,4 @@ const mkNode = async (conf: NodeConfig) =>
   })
 
 const getPrivateKey = (nodeName: string) =>
-  privateKeyFromRaw(cmd.readKeyFile(nodeName))
+  privateKeyFromRaw(readKeyFile(nodeName))

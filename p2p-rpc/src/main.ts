@@ -1,8 +1,7 @@
 import { comp, expect, unOpt } from './fp.js'
 import fs from 'fs'
 import yaml from 'yaml'
-import { program } from 'commander'
-import * as cmd from './cmd.js'
+import { addKeyFile } from './keypair.js'
 import {
   defaultState,
   getOtherEndpoints,
@@ -20,25 +19,29 @@ import { serve } from '@hono/node-server'
 main()
 
 async function main() {
-  program
-    // TODO: add default confPath
-    .command('run <path>', { isDefault: true })
-    .description('run node with name')
-    // .option('-c, --confPath <path>', 'specify node config path')
-    .action(runApp)
+  const args = process.argv.slice(2)
+  const confPath = ((p) => (p ? p : './p2p-rpc.yaml'))(args[0])
+  runApp(confPath)
 
-  program
-    .command('new <name>')
-    .description('make new node with name')
-    .action(cmd.newKeyFile)
-
-  // TODO: implement `show` command
-  program.parse()
+  // NOTE: add these lines in case of commands needed
+  // program
+  //   // TODO: add default confPath
+  //   .command('run <path>', { isDefault: true })
+  //   .description('run node with name')
+  //   // .option('-c, --confPath <path>', 'specify node config path')
+  //   .action(runApp)
+  // program
+  //   .command('new <name>')
+  //   .description('make new node with name')
+  //   .action(addKeyFile)
+  // program.parse()
 }
 
 async function runApp(confPath: string) {
   log.debug(`confPath: ${confPath}`)
   const nodeConf: NodeConfig = yaml.parse(fs.readFileSync(confPath, 'utf8'))
+
+  addKeyFile(nodeConf.name)
 
   // TODO: make httpPort default to httpEndpoint port
   const s: State = {

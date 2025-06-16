@@ -10,18 +10,18 @@ const keysDir = p2pRpcDir + 'keys/'
 
 const getKeyPath = (nodeName: string) => homeDir + `/${keysDir}` + nodeName
 
-export async function newKeyFile(nodeName: string) {
+export async function addKeyFile(nodeName: string) {
   const filePath = getKeyPath(nodeName)
   try {
     // Check if file exists
     fs.accessSync(filePath, fs.constants.F_OK)
-    log.error(`node ${nodeName} already exists`)
+    log.info(`node ${nodeName} already exists`)
   } catch {
-    await newKeyFile_(filePath)
+    await addKeyFile_(filePath)
   }
 }
 
-async function newKeyFile_(filePath: string) {
+async function addKeyFile_(filePath: string) {
   const dir = path.dirname(filePath)
   // Ensure the directory exists
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })

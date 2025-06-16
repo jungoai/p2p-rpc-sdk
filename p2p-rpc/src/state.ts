@@ -1,5 +1,4 @@
 import { Logger } from 'tslog'
-import { dbg } from './fp.js'
 
 export const log = new Logger({
   displayDateTime: false, // NOTE: true in prod, false in dev

@@ -1,0 +1,5 @@
+name:           "n3"
+httpEndpoint:   "http://192.168.56.53:8003" # mandatory e.g: 192.65.7.2:8000
+httpPort:       4003
+bootstrappers:
+  - "/ip4/192.168.56.53/tcp/3101/p2p/12D3KooWASpbZvWNP3v5nawaPFod58sMj99k1XYbX9YraXNaUfFE"
