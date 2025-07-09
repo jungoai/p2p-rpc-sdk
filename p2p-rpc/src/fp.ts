@@ -40,6 +40,7 @@ export function expect(msg: string, f: Fn1, x: any): any {
 
 type Fn1 = (x: any) => any
 
+// pip(x, [h, g, f])
 export function pip(x1: any, fs: Fn1[]): any {
   let y = x1
   for (const f of fs) {
@@ -48,9 +49,14 @@ export function pip(x1: any, fs: Fn1[]): any {
   return y
 }
 
+// comp([f, g, h])(x)
 export function comp(fs: Fn1[]): Fn1 {
   fs.reverse()
   return (x) => pip(x, fs)
+}
+
+export function parseBool(s: string): boolean {
+  return s.toLowerCase() === 'true'
 }
 
 export function dbg<T>(x: T, title: string): T {

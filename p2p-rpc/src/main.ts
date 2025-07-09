@@ -1,4 +1,4 @@
-import { comp, expect, unOpt } from './fp.js'
+import { comp, expect, parseBool, unOpt } from './fp.js'
 import fs from 'fs'
 import yaml from 'yaml'
 import { addKeyFile } from './keypair.js'
@@ -20,7 +20,8 @@ main()
 
 async function main() {
   const args = process.argv.slice(2)
-  const confPath = ((p) => (p ? p : './p2p-rpc.yaml'))(args[0])
+  const a0 = args[0]
+  const confPath = a0 ? a0 : './p2p-rpc.yaml'
   runApp(confPath)
 
   // NOTE: add these lines in case of commands needed
@@ -39,7 +40,10 @@ async function main() {
 
 async function runApp(confPath: string) {
   log.debug(`confPath: ${confPath}`)
-  const nodeConf: NodeConfig = yaml.parse(fs.readFileSync(confPath, 'utf8'))
+
+  const nodeConf: NodeConfig = fs.existsSync(confPath)
+    ? yaml.parse(fs.readFileSync(confPath, 'utf8'))
+    : mkNodeConfigFromEnv()
 
   addKeyFile(nodeConf.name)
 
@@ -61,6 +65,17 @@ async function runApp(confPath: string) {
   await runP2p(s)
 
   runHttp(s)
+}
+
+function mkNodeConfigFromEnv(): NodeConfig {
+  return {
+    name: unOpt(process.env.P2PRPC_NAME),
+    httpPort: Number(unOpt(process.env.P2PRPC_HTTP_PORT)),
+    p2pPort: Number(unOpt(process.env.P2PRPC_P2P_PORT)),
+    httpEndpoint: unOpt(process.env.P2PRPC_HTTP_ENDPOINT),
+    isBootstrap: parseBool(unOpt(process.env.P2PRPC_IS_BOOTSTRAP)),
+    bootstrappers: unOpt(process.env.P2PRPC_BOOTSTRAPPERS).split(','),
+  }
 }
 
 // -----------------------------------------------------------------------------
