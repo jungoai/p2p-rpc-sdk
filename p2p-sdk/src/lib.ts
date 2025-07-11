@@ -85,7 +85,7 @@ const doHaveDiff = (urls1: Url[], urls2: Url[]): boolean =>
   urls1.length !== urls2.length || urls1.some((val, i) => val !== urls2[i])
 
 export async function listProviderUrls(url: Url): Promise<Url[]> {
-  log.debug('feching urls')
+  log.debug('fetching urls')
   const res = await fetch(url)
 
   if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)

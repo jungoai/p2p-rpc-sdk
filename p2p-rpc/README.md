@@ -30,3 +30,5 @@ Run nodes:
 ```bash
 node dist/main.js ./examples/n2.yaml
 ```
+
+After run, you can find node address in `$HOME/.p2pRpc/addresses/<node-name>`

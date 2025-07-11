@@ -43,9 +43,12 @@ async function runApp(confPath: string) {
 
   const nodeConf: NodeConfig = fs.existsSync(confPath)
     ? yaml.parse(fs.readFileSync(confPath, 'utf8'))
-    : mkNodeConfigFromEnv()
+    : (() => {
+        log.info(`file ${confPath} not exsit, trying to read env vars.`)
+        return mkNodeConfigFromEnv()
+      })()
 
-  addKeyFile(nodeConf.name)
+  await addKeyFile(nodeConf.name)
 
   // TODO: make httpPort default to httpEndpoint port
   const s: State = {
@@ -93,6 +96,6 @@ function runHttp(s: State) {
       fetch: app.fetch,
       port: s.node.httpPort,
     },
-    (info) => log.info(`Listening on http://localhost:${info.port}`)
+    (info) => log.info(`HTTP listening on: http://localhost:${info.port}`)
   )
 }

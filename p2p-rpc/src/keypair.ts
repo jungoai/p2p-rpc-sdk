@@ -1,14 +1,10 @@
 import { generateKeyPair } from '@libp2p/crypto/keys'
 import * as fs from 'fs'
 import * as path from 'path'
-import * as os from 'os'
-import { log } from './state.js'
+import { keysDir, log } from './state.js'
+import { concatPath } from './fp.js'
 
-const homeDir = os.homedir()
-const p2pRpcDir = '.p2pRpc/'
-const keysDir = p2pRpcDir + 'keys/'
-
-const getKeyPath = (nodeName: string) => homeDir + `/${keysDir}` + nodeName
+const getKeyPath = (nodeName: string) => concatPath([keysDir, nodeName])
 
 export async function addKeyFile(nodeName: string) {
   const filePath = getKeyPath(nodeName)

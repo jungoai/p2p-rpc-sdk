@@ -1,9 +1,10 @@
 services:
-  erpc:
+  p2prpc:
     image: ghcr.io/mohsennz/p2prpc:latest
+    container_name: 'p2prpc'
     ports:
-      - "4001:4001" # expose P2PRPC_HTTP_PORT
-      - "3101:3101" # expose P2PRPC_P2P_PORT
+      - "4001:4001" # map P2PRPC_HTTP_PORT
+      - "3101:3101" # map P2PRPC_P2P_PORT
     environment:
       P2PRPC_NAME           : "n1"
       P2PRPC_HTTP_PORT      : 4001
@@ -14,10 +15,11 @@ services:
                                                     # the running chain address
       P2PRPC_IS_BOOTSTRAP   : "true"
       P2PRPC_BOOTSTRAPPERS  : "" # separate items with comma
+    volumes:
+      - "${HOME}/.p2pRpc:/root/.p2pRpc"
     # # In case of using p2p-rpc.yaml environment
-    # volumes:
     #   - ./p2p-rpc.yaml:/app/p2p-rpc.yaml
-    restart: unless-stopped
+    # restart: unless-stopped
     logging:
       driver: "json-file"
       options:

@@ -63,3 +63,7 @@ export function dbg<T>(x: T, title: string): T {
   console.log(`DBG [${title}]: ${x}`)
   return x
 }
+
+export function concatPath(xs: string[]): string {
+  return xs.join('/')
+}

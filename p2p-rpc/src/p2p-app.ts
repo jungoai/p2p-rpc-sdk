@@ -1,4 +1,4 @@
-import { log, NodeConfig, State } from './state.js'
+import { addressesDir, log, NodeConfig, State } from './state.js'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { noise } from '@chainsafe/libp2p-noise'
 import { yamux } from '@chainsafe/libp2p-yamux'
@@ -8,14 +8,19 @@ import { tcp } from '@libp2p/tcp'
 import { createLibp2p } from 'libp2p'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { readKeyFile } from './keypair.js'
+import * as fs from 'fs'
+import { concatPath } from './fp.js'
 
 export async function runP2p(s: State) {
   const node = await mkNode(s.node)
 
   log.info('Node started with id:', node.peerId.toString())
-  node
-    .getMultiaddrs()
-    .forEach((addr) => log.info(`Listening on: ${addr.toString()}`))
+  const multiaddrs = node.getMultiaddrs().map((a) => a.toString())
+  multiaddrs.forEach((addr) => log.info(`P2P listening on: ${addr.toString()}`))
+  if (!fs.existsSync(addressesDir))
+    fs.mkdirSync(addressesDir, { recursive: true })
+  const multiaddrs_ = multiaddrs.join('\n')
+  fs.writeFileSync(concatPath([addressesDir, s.node.name]), multiaddrs_)
 
   node.addEventListener('peer:discovery', (evt) =>
     log.info('Discovered %s', evt.detail.id.toString())

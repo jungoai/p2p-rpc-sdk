@@ -1,9 +1,16 @@
 import { Logger } from 'tslog'
+import * as os from 'os'
+import { concatPath } from './fp.js'
 
 export const log = new Logger({
   displayDateTime: false, // NOTE: true in prod, false in dev
   displayFilePath: 'hidden',
 })
+
+export const homeDir = os.homedir()
+export const p2pRpcDir = concatPath([homeDir, '.p2pRpc'])
+export const keysDir = concatPath([p2pRpcDir, 'keys'])
+export const addressesDir = concatPath([p2pRpcDir, 'addresses'])
 
 // TODO: rename port to httpPort, add p2pPort
 // prettier-ignore
