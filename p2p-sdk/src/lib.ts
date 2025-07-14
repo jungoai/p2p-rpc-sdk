@@ -1,4 +1,12 @@
-import { ethers, FallbackProvider, FetchGetUrlFunc, FetchRequest } from 'ethers'
+import {
+  AbstractProvider,
+  ethers,
+  FallbackProvider,
+  FetchGetUrlFunc,
+  FetchRequest,
+  Network,
+  PerformActionRequest,
+} from 'ethers'
 import { Logger, TLogLevelName } from 'tslog'
 
 function isLogLevel(s: string): boolean {
@@ -25,7 +33,7 @@ type Second = number
 type Url = string
 
 // prettier-ignore
-type P2pProvider = {
+type P2pProviderState = {
   chainId:          number
   urls:             Url[]
   fallbackProvider: FallbackProvider
@@ -33,40 +41,34 @@ type P2pProvider = {
   updateInterval:   Second
 }
 
-export async function mkP2pProvider(
+// TODO: at first check ping of each url, remove failed urls
+async function mkP2pProviderState(
   url: Url,
   chainId: number
-): Promise<() => FallbackProvider> {
-  const p2pp = await mkP2pProvider_(url, chainId)
-  log.debug('p2pProvider created')
-  return () => p2pp.fallbackProvider
-}
-
-// TODO: at first check ping to each urls, remove failed urls
-async function mkP2pProvider_(url: Url, chainId: number): Promise<P2pProvider> {
+): Promise<P2pProviderState> {
   const urls = await listProviderUrls(url)
-  urls.sort() // NOTE: we always store sorted urls for comparison later
+  urls.sort() // NOTE: we always store sorted urls for later comparison
 
   log.debug('all urls:', urls)
 
   const providers = urls.map((u) => mkJsonRpcProvider(u, chainId))
-  // .map((p) => ({ provider: p, weight: 1, priority: 1 })) // TODO
+  // .map((p) => ({ provider: p, weight: 1, priority: 1 })) // TODO: consider it
 
   const updateInterval: Second = 5
 
-  const p2pp: P2pProvider = {
+  const p2pps: P2pProviderState = {
     chainId,
     urls,
     fallbackProvider: new ethers.FallbackProvider(providers),
     updateInterval,
   }
 
-  setInterval(() => updateFallback(p2pp), updateInterval * 1000)
+  setInterval(() => updateFallback(p2pps), updateInterval * 1000)
 
-  return p2pp
+  return p2pps
 }
 
-async function updateFallback(p2pp: P2pProvider) {
+async function updateFallback(p2pp: P2pProviderState) {
   log.debug('Checking for updating Fallback')
   for (const url of p2pp.urls) {
     try {
@@ -141,5 +143,29 @@ export async function listProviderUrls(url: Url): Promise<Url[]> {
     throw new Error(
       `Could not parse response body as JSON (it might not be JSON): ${jsonError}`
     )
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// AbstractProvider
+
+export class P2pProvider extends AbstractProvider {
+  #state: P2pProviderState
+
+  private constructor(p2pps: P2pProviderState) {
+    super()
+    this.#state = p2pps
+  }
+
+  static async new(url: Url, chainId: number): Promise<P2pProvider> {
+    return new P2pProvider(await mkP2pProviderState(url, chainId))
+  }
+
+  async _detectNetwork(): Promise<Network> {
+    return this.#state.fallbackProvider._detectNetwork()
+  }
+
+  async _perform<T = any>(req: PerformActionRequest): Promise<T> {
+    return this.#state.fallbackProvider._perform(req)
   }
 }

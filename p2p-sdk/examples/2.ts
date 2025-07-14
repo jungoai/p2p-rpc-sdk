@@ -1,7 +1,7 @@
 // Example with using proxy
 
 import { ethers, FetchGetUrlFunc } from 'ethers'
-import { log, mkP2pProvider, registerFetchFn } from '../src/lib.js'
+import { log, P2pProvider, registerFetchFn } from '../src/lib.js'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const PROXY_URL = 'http://127.0.0.1:12334'
@@ -37,7 +37,7 @@ async function runExample() {
 
   const url = 'https://evm-rpcs.jungoai.xyz/'
   // const url = 'http://52.14.41.79:4001'
-  const p2pp = await mkP2pProvider(url, 1)
+  const p2pp = await P2pProvider.new(url, 30)
 
   console.log('p2pp created')
 
@@ -45,9 +45,7 @@ async function runExample() {
   // console.log('blocknumber: ', b)
 
   setInterval(() => {
-    p2pp()
-      .getBlockNumber()
-      .then((b) => console.log('blocknumber: ', b))
+    p2pp.getBlockNumber().then((b) => console.log('blocknumber: ', b))
   }, 10000)
 }
 

@@ -4,7 +4,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "example:1": "tsc && node dist/examples/1.js"
+    "example:1": "tsc && node dist/examples/1.js",
     "example:2": "tsc && node dist/examples/2.js"
   },
   "keywords": [],
