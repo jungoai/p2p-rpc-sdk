@@ -7,19 +7,7 @@
     "esModuleInterop": true,
     "outDir": "./dist",
     "rootDir": ".",
-    // "rewriteRelativeImportExtensions": true,
-    // "verbatimModuleSyntax": true,
-
-    // "noImplicitAny": true,
-    // "noImplicitThis": true,
-    // "noImplicitReturns": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noUncheckedIndexedAccess": true,
-    // "noImplicitOverride": true,
-    // "allowUnusedLabels": false,
-    // "allowUnreachableCode": false,
-    // "allowJs": false,
-    // "checkJs": false
+    "declaration": true, // emit types into dist/ for consumers
   },
   "include": ["src", "examples"],
 }
