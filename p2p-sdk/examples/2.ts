@@ -1,0 +1,65 @@
+// Example with using proxy
+
+import { ethers, FetchGetUrlFunc } from 'ethers'
+import { log, mkP2pProvider, registerFetchFn } from '../src/lib.js'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+const PROXY_URL = 'http://127.0.0.1:12334'
+const agent = new HttpsProxyAgent(PROXY_URL)
+
+const customFetchWithProxy: FetchGetUrlFunc = async (req) => {
+  const url = new URL(req.url)
+  const options = {
+    method: req.method,
+    headers: req.headers,
+    body: req.body,
+    agent: agent,
+    timeout: req.timeout,
+  }
+
+  const response = await fetch(url, options)
+
+  const arrayBuffer = await response.arrayBuffer()
+  const body = new Uint8Array(arrayBuffer)
+
+  return {
+    body: body,
+    headers: Object.fromEntries(response.headers.entries()),
+    statusCode: response.status,
+    statusMessage: response.statusText,
+  }
+}
+
+registerFetchFn(customFetchWithProxy)
+
+async function runExample() {
+  log.settings.minLevel = 'debug'
+
+  const url = 'https://evm-rpcs.jungoai.xyz/'
+  // const url = 'http://52.14.41.79:4001'
+  const p2pp = await mkP2pProvider(url, 1)
+
+  console.log('p2pp created')
+
+  // const b = await p2pp().getBlockNumber()
+  // console.log('blocknumber: ', b)
+
+  setInterval(() => {
+    p2pp()
+      .getBlockNumber()
+      .then((b) => console.log('blocknumber: ', b))
+  }, 10000)
+}
+
+runExample()
+
+// async function f() {
+//   const p = new ethers.JsonRpcProvider('https://evm-rpcs.jungoai.xyz/1')
+//   const b = await p.getBlockNumber()
+//   console.log('blocknumber: ', b)
+// }
+//
+// f()
+
+// const urls = await fetchProviderUrls('http://192.168.56.53:8002')
+// console.log('urls: ', urls)

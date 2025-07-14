@@ -1,9 +1,24 @@
-import { ethers, FallbackProvider } from 'ethers'
-import { Logger } from 'tslog'
+import { ethers, FallbackProvider, FetchGetUrlFunc, FetchRequest } from 'ethers'
+import { Logger, TLogLevelName } from 'tslog'
 
-const log = new Logger({
+function isLogLevel(s: string): boolean {
+  return ['silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'].includes(
+    s
+  )
+}
+
+function logLevelFromStr(s: string): TLogLevelName | null {
+  if (isLogLevel(s)) return s as TLogLevelName
+  else return null
+}
+
+const logLvlEnv = process.env.LOG_LEVEL
+const logLevel = logLvlEnv ? logLevelFromStr(logLvlEnv) || 'info' : 'info'
+
+export const log = new Logger({
   displayDateTime: false, // NOTE: true in prod, false in dev
   displayFilePath: 'hidden',
+  minLevel: logLevel,
 })
 
 type Second = number
@@ -84,15 +99,47 @@ const mkJsonRpcProvider = (url: Url, chainId: number) =>
 const doHaveDiff = (urls1: Url[], urls2: Url[]): boolean =>
   urls1.length !== urls2.length || urls1.some((val, i) => val !== urls2[i])
 
+const defFetch: FetchGetUrlFunc = async (req) => {
+  const res = await fetch(req.url)
+  const arrayBuffer = await res.arrayBuffer()
+  const body = new Uint8Array(arrayBuffer)
+  return {
+    statusCode: res.status,
+    statusMessage: res.statusText,
+    headers: Object.fromEntries(res.headers.entries()),
+    body: body,
+  }
+}
+
+let fetch_ = defFetch
+
+export function registerFetchFn(f: FetchGetUrlFunc) {
+  FetchRequest.registerGetUrl(f)
+  fetch_ = f
+}
+
 export async function listProviderUrls(url: Url): Promise<Url[]> {
   log.debug('fetching urls')
-  const res = await fetch(url)
 
-  if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+  const { statusCode, body } = await fetch_(new FetchRequest(url))
 
-  const data = await res.json()
-  log.debug('data fetched with:', data)
-  const otherUrls = Object.keys(data)
+  if (statusCode !== 200) throw new Error(`HTTP error! status: ${statusCode}`)
 
-  return [url, ...otherUrls]
+  if (body === null) throw new Error(`Body is not a valid JSON: ${body}`)
+
+  const textDecoder = new TextDecoder('utf-8')
+  const bodyString = textDecoder.decode(body)
+
+  try {
+    const jsonBody = JSON.parse(bodyString)
+
+    log.debug('data fetched with:', jsonBody)
+    const otherUrls = Object.keys(jsonBody)
+
+    return [url, ...otherUrls]
+  } catch (jsonError) {
+    throw new Error(
+      `Could not parse response body as JSON (it might not be JSON): ${jsonError}`
+    )
+  }
 }
