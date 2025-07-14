@@ -3,7 +3,7 @@
 import { log, P2pProvider } from '../src/lib.js'
 
 async function runExample() {
-  log.settings.minLevel = 'debug'
+  log.settings.minLevel = 'debug' // FIXME: it doesn't work
   const url = 'http://192.168.56.53:8002'
   const p2pp = await P2pProvider.new(url, 1)
 

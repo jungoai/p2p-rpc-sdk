@@ -1,7 +1,11 @@
 // Example with using proxy
 
-import { ethers, FetchGetUrlFunc } from 'ethers'
-import { log, P2pProvider, registerFetchFn } from '../src/lib.js'
+import {
+  FetchGetUrlFunc,
+  log,
+  P2pProvider,
+  registerFetchFn,
+} from '../src/lib.js'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const PROXY_URL = 'http://127.0.0.1:12334'
@@ -33,7 +37,7 @@ const customFetchWithProxy: FetchGetUrlFunc = async (req) => {
 registerFetchFn(customFetchWithProxy)
 
 async function runExample() {
-  log.settings.minLevel = 'debug'
+  log.settings.minLevel = 'debug' // FIXME: it doesn't work
 
   const url = 'https://evm-rpcs.jungoai.xyz/'
   // const url = 'http://52.14.41.79:4001'

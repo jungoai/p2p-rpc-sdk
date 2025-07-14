@@ -9,6 +9,8 @@ import {
 } from 'ethers'
 import { Logger, TLogLevelName } from 'tslog'
 
+export * from 'ethers'
+
 function isLogLevel(s: string): boolean {
   return ['silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'].includes(
     s
