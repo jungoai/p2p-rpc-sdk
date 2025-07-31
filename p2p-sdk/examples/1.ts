@@ -1,11 +1,14 @@
 // Simple example
 
-import { log, P2pProvider } from '../src/lib.js'
+import { log, P2pProvider, ethers, withP2pProvider } from '../src/lib.js'
 
-async function runExample() {
+const URL = 'http://70.34.217.65:4020/'
+// const URL = 'http://127.0.0.1:4001/'
+const CHAIN_ID = 1
+
+async function example_1_1() {
   log.settings.minLevel = 'debug' // FIXME: it doesn't work
-  const url = 'http://192.168.56.53:8002'
-  const p2pp = await P2pProvider.new(url, 1)
+  const p2pp = await P2pProvider.new(URL, CHAIN_ID)
 
   console.log('p2pp created')
 
@@ -14,4 +17,38 @@ async function runExample() {
   }, 7000)
 }
 
-runExample()
+async function doSomthing(p2pp: P2pProvider) {
+  const b = await p2pp.getBlockNumber()
+  console.log('blocknumber: ', b)
+}
+
+async function example_1_2() {
+  const p2pp = await P2pProvider.new(URL, CHAIN_ID)
+  await doSomthing(p2pp)
+}
+
+async function example_1_3() {
+  const p2pp = await P2pProvider.new(URL, CHAIN_ID)
+  await doSomthing(p2pp)
+  // with teardown, the url fetch interval would get stop
+  // otherwise it continues working until the program get close
+  p2pp.teardown()
+}
+
+async function example_1_4() {
+  // it automatically teardown at the end
+  await withP2pProvider(URL, CHAIN_ID, doSomthing)
+}
+
+async function ethersShowcase() {
+  const p = new ethers.JsonRpcProvider(`${URL}/${CHAIN_ID}`)
+
+  const b = await p.getBlockNumber()
+  console.log('blocknumber: ', b)
+}
+
+example_1_1()
+// example_1_2()
+// example_1_3()
+// example_1_4()
+// ethersShowcase()

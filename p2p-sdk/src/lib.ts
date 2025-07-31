@@ -41,10 +41,14 @@ type P2pProviderState = {
   fallbackProvider: FallbackProvider
   // NOTE: make sure time interval is relevant to p2p nodes ping interval, Default: 5 second
   updateInterval:   Second
+  intervalId:       ReturnType<typeof setInterval> | null
 }
 
+/**
+ * Make `P2pProviderState`` With fallbackProvider Updater
+ */
 // TODO: at first check ping of each url, remove failed urls
-async function mkP2pProviderState(
+async function mkP2ppsWithUpdater(
   url: Url,
   chainId: number
 ): Promise<P2pProviderState> {
@@ -63,11 +67,20 @@ async function mkP2pProviderState(
     urls,
     fallbackProvider: new ethers.FallbackProvider(providers),
     updateInterval,
+    intervalId: null,
   }
 
-  setInterval(() => updateFallback(p2pps), updateInterval * 1000)
+  const id = setInterval(() => updateFallback(p2pps), updateInterval * 1000)
+
+  p2pps.intervalId = id
 
   return p2pps
+}
+
+function teardownP2ppsUpdater(p2pps: P2pProviderState) {
+  const i = p2pps.intervalId
+  if (i !== null) clearInterval(i)
+  p2pps.intervalId = null
 }
 
 async function updateFallback(p2pp: P2pProviderState) {
@@ -160,8 +173,15 @@ export class P2pProvider extends AbstractProvider {
   }
 
   static async new(url: Url, chainId: number): Promise<P2pProvider> {
-    return new P2pProvider(await mkP2pProviderState(url, chainId))
+    return new P2pProvider(await mkP2ppsWithUpdater(url, chainId))
   }
+
+  teardown() {
+    teardownP2ppsUpdater(this.#state)
+  }
+
+  ///////////////////////////
+  // AbstractProvider methods
 
   async _detectNetwork(): Promise<Network> {
     return this.#state.fallbackProvider._detectNetwork()
@@ -170,4 +190,14 @@ export class P2pProvider extends AbstractProvider {
   async _perform<T = any>(req: PerformActionRequest): Promise<T> {
     return this.#state.fallbackProvider._perform(req)
   }
+}
+
+export async function withP2pProvider(
+  url: Url,
+  chainId: number,
+  f: (p: P2pProvider) => Promise<void>
+) {
+  const p2pp = await P2pProvider.new(url, chainId)
+  await f(p2pp)
+  p2pp.teardown()
 }

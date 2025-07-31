@@ -36,7 +36,7 @@ const customFetchWithProxy: FetchGetUrlFunc = async (req) => {
 
 registerFetchFn(customFetchWithProxy)
 
-async function runExample() {
+async function example_2() {
   log.settings.minLevel = 'debug' // FIXME: it doesn't work
 
   const url = 'https://evm-rpcs.jungoai.xyz/'
@@ -53,7 +53,7 @@ async function runExample() {
   }, 10000)
 }
 
-runExample()
+example_2()
 
 // async function f() {
 //   const p = new ethers.JsonRpcProvider('https://evm-rpcs.jungoai.xyz/1')
