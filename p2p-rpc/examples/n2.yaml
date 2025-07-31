@@ -1,5 +1,7 @@
 name:           "n2"
-httpEndpoint:   "http://192.168.56.53:8002" # mandatory e.g: 192.65.7.2:8000
+httpEndpoint:   "http://127.0.0.1:5002"
 httpPort:       4002
+p2pPort:        3102
+localTest:      true
 bootstrappers:
-  - "/ip4/192.168.56.53/tcp/3101/p2p/12D3KooWASpbZvWNP3v5nawaPFod58sMj99k1XYbX9YraXNaUfFE"
+  - "/ip4/127.0.0.1/tcp/3101/p2p/12D3KooWJ7zJ37zgyVkw2adQ7e54UNeEWDJVGPARaTqEaV5YaSMT"

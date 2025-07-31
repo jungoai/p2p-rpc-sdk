@@ -30,6 +30,14 @@ export function unOptOr<T>(y: T, x: Opt<T>): T {
   }
 }
 
+export function mapUndef<T, Y>(f: Fn2<T, Y>, x: T | undefined): Y | undefined {
+  return x ? f(x) : undefined
+}
+
+export function mapNull<T, Y>(f: Fn2<T, Y>, x: T | null): Y | null {
+  return x ? f(x) : null
+}
+
 export function expect(msg: string, f: Fn1, x: any): any {
   try {
     return f(x)
@@ -39,6 +47,7 @@ export function expect(msg: string, f: Fn1, x: any): any {
 }
 
 type Fn1 = (x: any) => any
+type Fn2<T, Y> = (x: T) => Y
 
 // pip(x, [h, g, f])
 export function pip(x1: any, fs: Fn1[]): any {
@@ -55,9 +64,24 @@ export function comp(fs: Fn1[]): Fn1 {
   return (x) => pip(x, fs)
 }
 
+// prettier-ignore
 export function parseBool(s: string): boolean {
-  return s.toLowerCase() === 'true'
+  if      (s.toLowerCase() === 'true')  return true
+  else if (s.toLowerCase() === 'false') return false
+  else
+    throw new Error(`Couldn't parse ${s} as boolean.`)
 }
+
+export function parseBoolOr(def: boolean, s: string): boolean {
+  try {
+    return parseBool(s)
+  } catch (_) {
+    return def
+  }
+}
+
+export const parseBoolOrFalse = (s: string) => parseBoolOr(false, s)
+export const parseBoolOrTrue = (s: string) => parseBoolOr(true, s)
 
 export function dbg<T>(x: T, title: string): T {
   console.log(`DBG [${title}]: ${x}`)

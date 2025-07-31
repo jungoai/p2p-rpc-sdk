@@ -10,6 +10,12 @@ import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { readKeyFile } from './keypair.js'
 import * as fs from 'fs'
 import { concatPath } from './fp.js'
+import {
+  kadDHT,
+  removePrivateAddressesMapper,
+  removePublicAddressesMapper,
+} from '@libp2p/kad-dht'
+import { ping } from '@libp2p/ping'
 
 export async function runP2p(s: State) {
   const node = await mkNode(s.node)
@@ -23,11 +29,15 @@ export async function runP2p(s: State) {
   fs.writeFileSync(concatPath([addressesDir, s.node.name]), multiaddrs_)
 
   node.addEventListener('peer:discovery', (evt) =>
-    log.info('Discovered %s', evt.detail.id.toString())
+    log.info('Discovered', evt.detail.id.toString())
   )
 
   node.addEventListener('peer:connect', (evt) =>
-    log.info('Connected to %s', evt.detail.toString())
+    log.info('Connected to', evt.detail.toString())
+  )
+
+  node.addEventListener('peer:disconnect', (evt) =>
+    log.info('Disconnected from', evt.detail.toString())
   )
 
   node.services.pubsub.addEventListener('message', (evt) =>
@@ -35,9 +45,9 @@ export async function runP2p(s: State) {
   )
 
   node.services.pubsub.addEventListener('subscription-change', (evt) => {
-    log.info('evt', evt)
-    const subs = node.services.pubsub.getSubscribers(newNodeAnnTopic) // debug
-    log.debug(`subscribers: ${subs}`) // debug
+    log.debug('evt', evt)
+    const subs = node.services.pubsub.getSubscribers(newNodeAnnTopic)
+    log.debug(`subscribers: ${subs}`)
   })
 
   node.services.pubsub.subscribe(newNodeAnnTopic)
@@ -77,16 +87,35 @@ const mkNode = async (conf: NodeConfig) =>
       listen:             [`/ip4/0.0.0.0/tcp/${conf.p2pPort}`],
     },
     privateKey:           getPrivateKey(conf.name),
-    peerDiscovery:        ((b) => b.length != 0
-                            ? [bootstrap({ list: b })]
-                            : []
-                          )(conf.bootstrappers),
+    peerDiscovery:        [ ...mkBootstrapList(conf.bootstrappers)
+                          // , mdns()
+                          ],
+    connectionManager: {
+      maxConnections:     conf.maxConnections,
+    },
     services: {
       pubsub:             gossipsub({ doPX: conf.isBootstrap }),
       identify:           identify(),
       identifyPush:       identifyPush(),
+      dht:                kadDHT(conf.localTest ? dhtTestOpt : dhtProdOpt),
+      ping:               ping(),
     },
   })
+
+const dhtTestOpt = {
+  protocol: '/ipfs/lan/kad/1.0.0',
+  peerInfoMapper: removePublicAddressesMapper,
+  clientMode: false,
+}
+
+const dhtProdOpt = {
+  protocol: '/ipfs/lan/1.0.0',
+  peerInfoMapper: removePrivateAddressesMapper,
+  clientMode: false,
+}
+
+const mkBootstrapList = (b: string[]) =>
+  b.length != 0 ? [bootstrap({ list: b })] : []
 
 const getPrivateKey = (nodeName: string) =>
   privateKeyFromRaw(readKeyFile(nodeName))

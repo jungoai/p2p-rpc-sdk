@@ -1,10 +1,24 @@
-import { Logger } from 'tslog'
+import { Logger, TLogLevelName } from 'tslog'
 import * as os from 'os'
 import { concatPath } from './fp.js'
+
+function isLogLevel(s: string): boolean {
+  return ['silly', 'trace', 'debug', 'info', 'warn', 'error', 'fatal'].includes(
+    s
+  )
+}
+
+function logLevelFromStr(s: string): TLogLevelName | null {
+  if (isLogLevel(s)) return s as TLogLevelName
+  else return null
+}
+
+const logLvlEnv = process.env.LOG_LEVEL
 
 export const log = new Logger({
   displayDateTime: false, // NOTE: true in prod, false in dev
   displayFilePath: 'hidden',
+  minLevel: logLvlEnv ? logLevelFromStr(logLvlEnv) || 'info' : 'info',
 })
 
 export const homeDir = os.homedir()
@@ -12,27 +26,55 @@ export const p2pRpcDir = concatPath([homeDir, '.p2pRpc'])
 export const keysDir = concatPath([p2pRpcDir, 'keys'])
 export const addressesDir = concatPath([p2pRpcDir, 'addresses'])
 
-// TODO: rename port to httpPort, add p2pPort
+// prettier-ignore
+export type NodeConfRead = {
+  name:                 string   | undefined
+  httpPort:             number
+  p2pPort:              number
+  httpEndpoint:         string                // Endpoint to be used by client (e.g SDK, ...)
+  maxConnections:       number   | undefined  // Connection limit to save resources
+  isBootstrap:          boolean  | undefined
+  localTest:            boolean  | undefined
+  bootstrappers:        string[] | undefined
+}
+
 // prettier-ignore
 export type NodeConfig = {
   name:                 string
-  // TODO: default to httpEndpoint port
   httpPort:             number
   p2pPort:              number
-  // TODO: rename to exposedEndpoint
-  httpEndpoint:         string    // exposed endpoint, it's mandatory for 
+  httpEndpoint:         string
+  maxConnections:       number
   isBootstrap:          boolean
+  localTest:            boolean
   bootstrappers:        string[]
 }
+
 // prettier-ignore
-export const defaultNodeConfig : NodeConfig = {
-  name:                 "default",
-  httpPort:             3000,
-  p2pPort:              0,                        // run in random port
-  httpEndpoint:         "http://127.0.0.1:3000",  // dummy default, it must specify in runtime
-  isBootstrap:          false,
-  bootstrappers:        [],
+export const nodeDefs = {
+  name:           'default',
+  isBootstrap:    false,
+  localTest:      false,
+  bootstrappers:  [],
 }
+
+// prettier-ignore
+/**
+ * `NodeConfig` from `NodeConfRead` and defaults
+ */
+export function nodeConfFromRead(r: NodeConfRead): NodeConfig {
+  return {
+    name:           r.name || nodeDefs.name,
+    httpPort:       r.httpPort,
+    p2pPort:        r.p2pPort,
+    httpEndpoint:   r.httpEndpoint,
+    maxConnections: r.maxConnections || nodeDefs.isBootstrap ? 100 : 20,
+    isBootstrap:    r.isBootstrap || nodeDefs.isBootstrap,
+    localTest:      r.localTest || nodeDefs.localTest,
+    bootstrappers:  r.bootstrappers || nodeDefs.bootstrappers,
+  }
+}
+
 // prettier-ignore
 export type State = {
   // node options
@@ -44,13 +86,16 @@ export type State = {
   lastSeen:             Date      // last other nodes endpoints requested
   otherNodesEndpoints:  Map<string, Date>
 }
+
 // prettier-ignore
-export const defaultState: State = {
-  node:                 defaultNodeConfig,
-  pingInterval:         5,        // NOTE: 30 (sec) in production
-  failureN:             2,
-  lastSeen:             new Date(),
-  otherNodesEndpoints:  new Map(),
+export function mkState(node: NodeConfig): State {
+  return {
+    node,
+    pingInterval:         node.localTest ? 5 : 30, // 30 (sec) in production, 5 in test
+    failureN:             2,
+    lastSeen:             new Date(),
+    otherNodesEndpoints:  new Map(),
+  }
 }
 
 export type Second = number

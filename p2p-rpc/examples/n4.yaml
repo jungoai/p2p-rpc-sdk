@@ -1,5 +1,7 @@
 name:           "n4"
-httpEndpoint:   "http://192.168.56.53:8004" # mandatory e.g: 192.65.7.2:8000
+httpEndpoint:   "http://127.0.0.1:5004"
 httpPort:       4004
+p2pPort:        3104
+localTest:      true
 bootstrappers:
-  - "/ip4/192.168.56.53/tcp/3101/p2p/12D3KooWASpbZvWNP3v5nawaPFod58sMj99k1XYbX9YraXNaUfFE"
+  - "/ip4/127.0.0.1/tcp/3102/p2p/12D3KooWNukt4XDPo5A2PCm2Xud4v4MndQtrdFSvtz55HC5QNpxZ"

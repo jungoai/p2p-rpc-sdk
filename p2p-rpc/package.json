@@ -23,6 +23,7 @@
     "@hono/node-server": "^1.14.2",
     "@libp2p/bootstrap": "^11.0.35",
     "@libp2p/identify": "^3.0.29",
+    "@libp2p/kad-dht": "^15.1.10",
     "@libp2p/peer-id": "^5.1.2",
     "@libp2p/tcp": "^10.1.10",
     "commander": "^14.0.0",
