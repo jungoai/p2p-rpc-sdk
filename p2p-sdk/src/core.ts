@@ -2,9 +2,12 @@
 import { FetchGetUrlFunc, FetchRequest } from 'ethers'
 import { concatPath, debug, info } from './utile'
 
-type Second = number
+export type Second = number
 export type Url = string
 export type ChainID = number
+
+export const UPDATE_INTERVAL_TEST = 5
+export const UPDATE_INTERVAL_MAIN = 30
 
 // prettier-ignore
 export type P2pProviderState<T> = {
@@ -40,14 +43,12 @@ export class Urls {
 // TODO: at first check ping of each url, remove failed urls
 export async function mkP2pProviderState<T>(
   url: Url,
-  mkFallback: (newUrls: Urls) => T
+  mkFallback: (newUrls: Urls) => T,
+  updateInterval: Second = UPDATE_INTERVAL_MAIN
 ): Promise<P2pProviderState<T>> {
   const urls = new Urls(await listProviderUrls(url))
 
   debug('all urls:', urls.inner)
-
-  // TODO: get from user
-  const updateInterval: Second = 5
 
   const p2pps: P2pProviderState<T> = {
     urls,

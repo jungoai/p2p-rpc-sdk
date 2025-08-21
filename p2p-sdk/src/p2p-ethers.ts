@@ -16,6 +16,8 @@ import {
   Url,
   Urls,
   urlWithChainId,
+  Second,
+  UPDATE_INTERVAL_MAIN,
 } from './core'
 
 export class P2pProvider extends AbstractProvider {
@@ -26,7 +28,11 @@ export class P2pProvider extends AbstractProvider {
     this.#state = p2pps
   }
 
-  static async new(url: Url, chainId: ChainID): Promise<P2pProvider> {
+  static async new(
+    url: Url,
+    chainId: ChainID,
+    updateInterval: Second = UPDATE_INTERVAL_MAIN
+  ): Promise<P2pProvider> {
     const mkFallback = (newUrls: Urls) => {
       const p = newUrls.inner.map(
         (url) => new ethers.JsonRpcProvider(urlWithChainId(url, chainId))
@@ -34,7 +40,9 @@ export class P2pProvider extends AbstractProvider {
       // .map((p) => ({ provider: p, weight: 1, priority: 1 })) // TODO: consider it
       return new ethers.FallbackProvider(p)
     }
-    return new P2pProvider(await mkP2pProviderState(url, mkFallback))
+    return new P2pProvider(
+      await mkP2pProviderState(url, mkFallback, updateInterval)
+    )
   }
 
   teardown() {
@@ -56,9 +64,10 @@ export class P2pProvider extends AbstractProvider {
 export async function withP2pProvider(
   url: Url,
   chainId: number,
-  f: (p: P2pProvider) => Promise<void>
+  f: (p: P2pProvider) => Promise<void>,
+  updateInterval: Second = UPDATE_INTERVAL_MAIN
 ) {
-  const p2pp = await P2pProvider.new(url, chainId)
+  const p2pp = await P2pProvider.new(url, chainId, updateInterval)
   await f(p2pp)
   p2pp.teardown()
 }

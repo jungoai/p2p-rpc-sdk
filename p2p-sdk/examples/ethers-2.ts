@@ -3,6 +3,7 @@
 import { FetchGetUrlFunc } from 'ethers'
 import { logSettings, P2pProvider, registerFetchFn } from '../src/index.ts'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import { UPDATE_INTERVAL_TEST } from '../src/core.ts'
 
 const PROXY_URL = 'http://127.0.0.1:12334'
 const agent = new HttpsProxyAgent(PROXY_URL)
@@ -37,7 +38,7 @@ logSettings.level = 'debug'
 async function example_2() {
   const url = 'https://evm-rpcs.jungoai.xyz/'
   // const url = 'http://52.14.41.79:4001'
-  const p2pp = await P2pProvider.new(url, 30)
+  const p2pp = await P2pProvider.new(url, 30, UPDATE_INTERVAL_TEST)
 
   console.log('p2pp created')
 
