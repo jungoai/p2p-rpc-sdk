@@ -8,19 +8,32 @@ logSettings.level = 'debug'
 const URL = 'https://evm-rpcs.jungoai.xyz/'
 // const URL = 'http://127.0.0.1:4001/'
 
-const p2pTrans = await P2pWagmiTransports.new(URL, [mainnet.id])
+const mkClient = (transport) =>
+  createPublicClient({
+    chain: mainnet,
+    transport,
+  })
 
-const client = createPublicClient({
-  chain: mainnet,
-  transport: unOpt(p2pTrans.transports().get(mainnet.id)),
-})
+async function testNode_1() {
+  const p2pTrans = await P2pWagmiTransports.new(URL, [mainnet.id])
+  const client = mkClient(unOpt(p2pTrans.transports().get(mainnet.id)))
 
-async function testNode() {
-  const blockNumber = await client.getBlockNumber()
-  console.log('Current block:', blockNumber)
+  setInterval(() => {
+    client.getBlockNumber().then((b) => console.log('blocknumber: ', b))
+  }, 7000)
 }
 
-testNode()
+async function testNode_2() {
+  const p2pTrans = await P2pWagmiTransports.new(URL, [mainnet.id])
+  const client = mkClient(unOpt(p2pTrans.transports().get(mainnet.id)))
+
+  const blockNumber = await client.getBlockNumber()
+  console.log('Current block:', blockNumber)
+
+  p2pTrans.teardown() // optional, to stop new URLs fetching
+}
+
+testNode_1()
 
 ///////////////////////////////////////////////////////////////////////////////
 
