@@ -1,30 +1,60 @@
 {
   "name": "@mohsennz/p2p-sdk",
   "version": "0.1.1",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "example:1": "tsc && node dist/examples/1.js",
-    "example:2": "tsc && node dist/examples/2.js"
-  },
-  "keywords": [],
+  "description": "",
   "author": "Mohsen Nezamolmolki",
   "license": "MIT",
-  "description": "",
+  "keywords": [],
   "type": "module",
-  "devDependencies": {
-    "@types/node": "^22.15.17",
-    "https-proxy-agent": "^7.0.6",
-    "typescript": "^5.8.3"
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
-  "dependencies": {
-    "ethers": "^6.14.1",
-    "tslog": "^3.2.0"
-  },
-
-  "main": "dist/src/lib.js",
-  "types": "dist/src/lib.d.ts",
   "files": [
     "dist"
-  ]
+  ],
+  "scripts": {
+    "build": "tsc",
+    "example:ethers:1": "tsc && tsx ./examples/ethers-1.ts",
+    "example:ethers:2": "tsc && tsx ./examples/ethers-2.ts",
+    "example:wagmi:1": "tsc && tsx ./examples/wagmi-1.ts",
+    "example:wagmi:2": "tsc && vite ./examples/wagmi-2",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.17",
+    "@wagmi/cli": "2.5.0",
+    "@wagmi/connectors": "5.9.4",
+    "buffer": "^6.0.3",
+    "https-proxy-agent": "^7.0.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.8.3",
+    "vite": "^5.2.11",
+    "tsx": "^4.20.4",
+    "ethers": "^6.14.1",
+    "@wagmi/core": "^2.19.0",
+    "viem": "^2.34.0"
+  },
+  "peerDependencies": {
+    "ethers": "^6.14.1",
+    "@wagmi/core": "^2.19.0",
+    "viem": "^2.34.0"
+  },
+  "peerDependenciesMeta": {
+    "ethers": {
+      "optional": true
+    },
+    "@wagmi/core": {
+      "optional": true
+    },
+    "viem": {
+      "optional": true
+    }
+  }
 }

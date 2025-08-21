@@ -1,13 +1,14 @@
 // Simple example
 
-import { log, P2pProvider, ethers, withP2pProvider } from '../src/lib.js'
+import { logSettings, P2pProvider, withP2pProvider } from '../src/index.ts'
 
 const URL = 'http://70.34.217.65:4020/'
 // const URL = 'http://127.0.0.1:4001/'
 const CHAIN_ID = 1
 
+logSettings.level = 'debug'
+
 async function example_1_1() {
-  log.settings.minLevel = 'debug' // FIXME: it doesn't work
   const p2pp = await P2pProvider.new(URL, CHAIN_ID)
 
   console.log('p2pp created')
@@ -40,6 +41,16 @@ async function example_1_4() {
   await withP2pProvider(URL, CHAIN_ID, doSomthing)
 }
 
+example_1_1()
+// example_1_2()
+// example_1_3()
+// example_1_4()
+
+///////////////////////////////////////////////////////////////////////////////
+// vanilla ethers
+
+import { ethers } from 'ethers'
+
 async function ethersShowcase() {
   const p = new ethers.JsonRpcProvider(`${URL}/${CHAIN_ID}`)
 
@@ -47,8 +58,4 @@ async function ethersShowcase() {
   console.log('blocknumber: ', b)
 }
 
-example_1_1()
-// example_1_2()
-// example_1_3()
-// example_1_4()
 // ethersShowcase()

@@ -1,11 +1,7 @@
 // Example with using proxy
 
-import {
-  FetchGetUrlFunc,
-  log,
-  P2pProvider,
-  registerFetchFn,
-} from '../src/lib.js'
+import { FetchGetUrlFunc } from 'ethers'
+import { logSettings, P2pProvider, registerFetchFn } from '../src/index.ts'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const PROXY_URL = 'http://127.0.0.1:12334'
@@ -36,9 +32,9 @@ const customFetchWithProxy: FetchGetUrlFunc = async (req) => {
 
 registerFetchFn(customFetchWithProxy)
 
-async function example_2() {
-  log.settings.minLevel = 'debug' // FIXME: it doesn't work
+logSettings.level = 'debug'
 
+async function example_2() {
   const url = 'https://evm-rpcs.jungoai.xyz/'
   // const url = 'http://52.14.41.79:4001'
   const p2pp = await P2pProvider.new(url, 30)

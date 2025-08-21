@@ -1,13 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "outDir": "./dist",
-    "rootDir": ".",
-    "declaration": true, // emit types into dist/ for consumers
+    "target": "ESNext",                  // Modern output
+    "module": "ESNext",                  // Keep ESNext modules (bundlers handle)
+    "strict": true,                      // Good: strict typing
+    "esModuleInterop": true,             // Keep for CJS interop
+    "outDir": "./dist",                  // Output folder
+    "rootDir": "src",                    // Set to src only (not project root)
+    "declaration": true,                 // Emit .d.ts for consumers
+    "declarationMap": true,              // Helpful for debugging source in editors
+    "sourceMap": true,                   // Helpful for consumers debugging your lib
+    "skipLibCheck": true,                // Faster builds (optional, but common)
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",       // Use bundler resolution
+    "resolveJsonModule": true,
+    "isolatedModules": true,             // Required for bundler mode usually
   },
-  "include": ["src", "examples"],
+  "include": ["src"],                    // Don’t compile examples into dist
+  "exclude": ["dist", "node_modules", "examples"]
 }
