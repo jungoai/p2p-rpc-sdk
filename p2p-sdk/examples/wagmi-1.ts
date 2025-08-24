@@ -1,6 +1,7 @@
 import { mainnet } from '@wagmi/core/chains'
 import { logSettings, P2pWagmiTransports } from '../src/index.ts'
 import { createPublicClient } from 'viem'
+import { UPDATE_INTERVAL_TEST } from '../src/core.ts'
 
 logSettings.level = 'debug'
 
@@ -15,7 +16,11 @@ const mkClient = (transport) =>
   })
 
 async function testNode_1() {
-  const p2pTrans = await P2pWagmiTransports.new(URL, [mainnet.id])
+  const p2pTrans = await P2pWagmiTransports.new(
+    URL,
+    [mainnet.id],
+    UPDATE_INTERVAL_TEST // optional, for test purpose
+  )
   const client = mkClient(unOpt(p2pTrans.transports().get(mainnet.id)))
 
   setInterval(() => {
@@ -24,7 +29,11 @@ async function testNode_1() {
 }
 
 async function testNode_2() {
-  const p2pTrans = await P2pWagmiTransports.new(URL, [mainnet.id])
+  const p2pTrans = await P2pWagmiTransports.new(
+    URL,
+    [mainnet.id],
+    UPDATE_INTERVAL_TEST
+  )
   const client = mkClient(unOpt(p2pTrans.transports().get(mainnet.id)))
 
   const blockNumber = await client.getBlockNumber()
