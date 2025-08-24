@@ -1,4 +1,4 @@
-import { Logger, TLogLevelName } from 'tslog'
+import { Logger } from 'tslog'
 import * as os from 'os'
 import { concatPath } from './fp.js'
 
@@ -8,17 +8,46 @@ function isLogLevel(s: string): boolean {
   )
 }
 
-function logLevelFromStr(s: string): TLogLevelName | null {
-  if (isLogLevel(s)) return s as TLogLevelName
-  else return null
+export enum LogLevel {
+  Silly = 0,
+  Trace,
+  Debug,
+  Info,
+  Warn,
+  Error,
+  Fatal,
 }
 
-const logLvlEnv = process.env.LOG_LEVEL
+function logLevelFromStr(s: string): number | null {
+  switch (s) {
+    case 'fatal':
+      return LogLevel.Fatal
+    case 'error':
+      return LogLevel.Error
+    case 'warn':
+      return LogLevel.Warn
+    case 'info':
+      return LogLevel.Info
+    case 'debug':
+      return LogLevel.Debug
+    case 'trace':
+      return LogLevel.Trace
+    case 'silly':
+      return LogLevel.Silly
+    default:
+      return null
+  }
+}
+
+function logLevelFromEnv(): number {
+  const logLvlEnv = process.env.LOG_LEVEL
+  return logLvlEnv ? logLevelFromStr(logLvlEnv) || LogLevel.Info : LogLevel.Info
+}
 
 export const log = new Logger({
-  displayDateTime: false, // NOTE: true in prod, false in dev
-  displayFilePath: 'hidden',
-  minLevel: logLvlEnv ? logLevelFromStr(logLvlEnv) || 'info' : 'info',
+  stylePrettyLogs: false,
+  prettyLogTemplate: '{{hh}}:{{MM}}:{{ss}} {{logLevelName}} ',
+  minLevel: logLevelFromEnv(),
 })
 
 export const homeDir = os.homedir()
@@ -87,11 +116,14 @@ export type State = {
   otherNodesEndpoints:  Map<string, Date>
 }
 
+const PING_INTERVAL_TEST = 5
+const PING_INTERVAL_MAIN = 30
+
 // prettier-ignore
 export function mkState(node: NodeConfig): State {
   return {
     node,
-    pingInterval:         node.localTest ? 5 : 30, // 30 (sec) in production, 5 in test
+    pingInterval:         node.localTest ? PING_INTERVAL_TEST : PING_INTERVAL_MAIN,
     failureN:             2,
     lastSeen:             new Date(),
     otherNodesEndpoints:  new Map(),
