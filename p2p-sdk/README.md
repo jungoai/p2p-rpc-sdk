@@ -29,6 +29,8 @@ const blocknumber = await p2pp.getBlockNumber()
 console.log('blocknumber: ', blocknumber)
 ```
 
+For more inforemation checkout `./examples/` directory.
+
 Wagmi example:
 ```typescript
 import { baseAccount, injected, walletConnect } from '@wagmi/connectors'
@@ -54,4 +56,4 @@ export const config = createConfig({
 })
 ```
 
-For more inforemation see `./examples/` directory.
+After this, you can use this config to use wagmi. For more information please checkout `./examples/wagmi-2/`.
