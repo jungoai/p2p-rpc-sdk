@@ -1,5 +1,5 @@
 import { baseAccount, injected, walletConnect } from '@wagmi/connectors'
-import { createConfig, fallback, http } from '@wagmi/core'
+import { createConfig, http } from '@wagmi/core'
 import { mainnet, sepolia } from '@wagmi/core/chains'
 import { logSettings, P2pWagmiTransports } from '../../../src/index.ts'
 
@@ -20,7 +20,6 @@ export const config = createConfig({
     walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
   ],
   transports: {
-    // [mainnet.id]: fallback([http('http://70.34.217.65:4020/1')]),
     [mainnet.id]: unOpt(p2pTrans.transports().get(mainnet.id)),
     // [sepolia.id]: http(),
   },

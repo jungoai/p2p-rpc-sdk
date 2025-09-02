@@ -15,7 +15,7 @@ const mkClient = (transport) =>
     transport,
   })
 
-async function testNode_1() {
+async function test1() {
   const p2pTrans = await P2pWagmiTransports.new(
     URL,
     [mainnet.id],
@@ -28,7 +28,7 @@ async function testNode_1() {
   }, 7000)
 }
 
-async function testNode_2() {
+async function test2() {
   const p2pTrans = await P2pWagmiTransports.new(
     URL,
     [mainnet.id],
@@ -42,7 +42,7 @@ async function testNode_2() {
   p2pTrans.teardown() // optional, to stop new URLs fetching
 }
 
-testNode_1()
+test1()
 
 ///////////////////////////////////////////////////////////////////////////////
 
