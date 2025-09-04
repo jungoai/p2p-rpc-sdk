@@ -30,12 +30,12 @@ With just a few lines of code, your application can send blockchain requests thr
 📦 **Installation**
 
 ```bash
-npm install @mohsennz/p2p-sdk # todo
+npm install p2p-rpc-sdk
 ```
 
 ---
 
-🚀 Quick Start
+🚀 **Quick Start**
 
 ### Ethers
 
@@ -49,7 +49,7 @@ To use it in an ethers project you just need to change the line:
 After that all API is the same of ethers.
 
 ```typescript
-import { P2pProvider } from '@mohsennz/p2p-sdk' // todo
+import { P2pProvider } from 'p2p-rpc-sdk'
 
 const URL = 'https://evm-rpcs.jungoai.xyz/'
 const CHAIN_ID = 30
@@ -74,7 +74,7 @@ To use it in a Wagmi project you need to initialize like it:
 ```typescript
 import { baseAccount, injected, walletConnect } from '@wagmi/connectors'
 import { mainnet, sepolia } from '@wagmi/core/chains'
-import { P2pWagmiTransports } from '@mohsennz/p2p-sdk' // todo
+import { P2pWagmiTransports } from 'p2p-rpc-sdk'
 
 const URL = 'https://evm-rpcs.jungoai.xyz/'
 
@@ -103,7 +103,22 @@ The lines have changed:
 ```
 
 
-For more information checkout [examples](todo) directory.
+For more information checkout [examples](https://github.com/jungoai/p2p-rpc-sdk/tree/main/examples) directory.
+
+### Run Example
+
+```bash
+npm run example:ethers:1
+npm run example:ethers:2
+npm run example:wagmi:1
+npm run example:wagmi:2
+```
+
+### Set log level
+
+```bash
+LOG_LEVEL="debug" npm run example:ethers:2
+```
 
 ---
 
@@ -118,22 +133,9 @@ For more information checkout [examples](todo) directory.
 
 ---
 
-🔮 Roadmap
+🔮 **Roadmap**
 
 - [x] Drop-in replacement to favorites library like Wagmi and Ethers
 - [ ] Node selection strategies (latency, region, capacity).
 - [ ] SDK bindings for Python, Rust, and Go.
 - [ ] Node reputation and health monitoring.
-
-## Run Example
-
-```bash
-npm run example:1
-npm run example:2
-```
-
-### Set log level
-
-```bash
-LOG_LEVEL="debug" npm run example:2
-```
