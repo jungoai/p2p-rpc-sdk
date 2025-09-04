@@ -6,9 +6,7 @@ Instead of relying on a single RPC endpoint, the SDK maintains an updated list o
 
 With just a few lines of code, your application can send blockchain requests through a fault-tolerant RPC network.
 
----
-
-✨ **Features**
+## ✨ Features
 
 - **Automatic Peer Discovery**
   Fetches and updates a list of available RPC nodes from the p2prpc network.
@@ -25,17 +23,13 @@ With just a few lines of code, your application can send blockchain requests thr
 - **Lightweight & Efficient**
   Built for speed, minimal overhead, and easy integration.
 
----
-
-📦 **Installation**
+## 📦 Installation
 
 ```bash
 npm install p2p-rpc-sdk
 ```
 
----
-
-🚀 **Quick Start**
+## 🚀 Quick Start
 
 ### Ethers
 
@@ -120,9 +114,7 @@ npm run example:wagmi:2
 LOG_LEVEL="debug" npm run example:ethers:2
 ```
 
----
-
-⚙️ **How It Works**
+## ⚙️ How It Works
 
 1. **Bootstrap** – The client connects to the p2prpc network and fetches available node addresses.
 2. **Address Sync** – The client keeps its address list updated automatically.
@@ -131,9 +123,7 @@ LOG_LEVEL="debug" npm run example:ethers:2
     - If the node fails, it retries with another one.
     - Requests complete seamlessly without developer intervention.
 
----
-
-🔮 **Roadmap**
+## 🔮 Roadmap
 
 - [x] Drop-in replacement to favorites library like Wagmi and Ethers
 - [ ] Node selection strategies (latency, region, capacity).
