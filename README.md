@@ -1,6 +1,6 @@
 # P2P-RPC SDK
 
-The p2prpc SDK is a JS/TS library for connecting to the [p2prpc](https://github.com/jungoai/p2p-rpc) network, a decentralized peer-to-peer layer for blockchains.
+The p2prpc SDK is a JS/TS library for connecting to the [p2prpc](https://github.com/jungoai/p2p-rpc) network, a decentralized peer-to-peer layer for blockchain RPCs.
 
 Instead of relying on a single RPC endpoint, the SDK maintains an updated list of peer nodes and automatically handles failover, load balancing, and request retries.
 
@@ -125,6 +125,7 @@ LOG_LEVEL="debug" npm run example:ethers:2
 
 ## 🔮 Roadmap
 
+- [x] Fault Tolerance
 - [x] Drop-in replacement to favorites library like Wagmi and Ethers
 - [ ] Node selection strategies (latency, region, capacity).
 - [ ] SDK bindings for Python, Rust, and Go.
