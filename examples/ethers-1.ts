@@ -3,8 +3,9 @@
 import { UPDATE_INTERVAL_TEST } from '../src/core.ts'
 import { logSettings, P2pProvider, withP2pProvider } from '../src/index.ts'
 
-const URL = 'http://70.34.217.65:4020/'
+// const URL = 'http://70.34.217.65:4020/'
 // const URL = 'http://127.0.0.1:4001/'
+const URL = 'http://127.0.0.1:5001/'
 const CHAIN_ID = 1
 
 logSettings.level = 'debug'

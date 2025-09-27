@@ -1,45 +1,37 @@
 import { mainnet } from '@wagmi/core/chains'
-import { logSettings, P2pWagmiTransports } from '../src/index.ts'
+import { logSettings, P2pWagmi } from '../src/index.ts'
 import { createPublicClient } from 'viem'
 import { UPDATE_INTERVAL_TEST } from '../src/core.ts'
 
 logSettings.level = 'debug'
 
 // const URL = 'http://70.34.217.65:4020/'
-const URL = 'https://evm-rpcs.jungoai.xyz/'
+// const URL = 'https://evm-rpcs.jungoai.xyz/'
 // const URL = 'http://127.0.0.1:4001/'
+const URL = 'http://127.0.0.1:5001/'
 
-const mkClient = (transport) =>
-  createPublicClient({
-    chain: mainnet,
-    transport,
-  })
+const p2pWagmi = await P2pWagmi.new(
+  URL,
+  [mainnet],
+  UPDATE_INTERVAL_TEST // optional, for test purpose
+)
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: unOpt(p2pWagmi.transports().get(mainnet.id)),
+})
 
 async function test1() {
-  const p2pTrans = await P2pWagmiTransports.new(
-    URL,
-    [mainnet.id],
-    UPDATE_INTERVAL_TEST // optional, for test purpose
-  )
-  const client = mkClient(unOpt(p2pTrans.transports().get(mainnet.id)))
-
   setInterval(() => {
     client.getBlockNumber().then((b) => console.log('blocknumber: ', b))
   }, 7000)
 }
 
 async function test2() {
-  const p2pTrans = await P2pWagmiTransports.new(
-    URL,
-    [mainnet.id],
-    UPDATE_INTERVAL_TEST
-  )
-  const client = mkClient(unOpt(p2pTrans.transports().get(mainnet.id)))
-
   const blockNumber = await client.getBlockNumber()
   console.log('Current block:', blockNumber)
 
-  p2pTrans.teardown() // optional, to stop new URLs fetching
+  p2pWagmi.teardown() // optional, to stop new URLs fetching
 }
 
 test1()

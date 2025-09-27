@@ -1,7 +1,7 @@
 import { baseAccount, injected, walletConnect } from '@wagmi/connectors'
 import { createConfig, http } from '@wagmi/core'
 import { mainnet, sepolia } from '@wagmi/core/chains'
-import { logSettings, P2pWagmiTransports } from '../../../src/index.ts'
+import { logSettings, P2pWagmi } from '../../../src/index.ts'
 
 // const URL = 'http://70.34.217.65:4020/'
 const URL = 'https://evm-rpcs.jungoai.xyz/'
@@ -9,7 +9,7 @@ const URL = 'https://evm-rpcs.jungoai.xyz/'
 
 logSettings.level = 'debug'
 
-const p2pTrans = await P2pWagmiTransports.new(URL, [mainnet.id])
+const p2pTrans = await P2pWagmi.new(URL, [mainnet.id])
 
 export const config = createConfig({
   // chains: [mainnet, sepolia],

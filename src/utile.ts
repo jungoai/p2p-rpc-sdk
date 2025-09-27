@@ -40,3 +40,24 @@ export function concatPath(base: string, sub: string): string {
 
   return base + sub
 }
+
+export function replaceArray<T>(arr: T[], newArr: T[]): void {
+  arr.splice(0, arr.length, ...newArr)
+}
+
+export function tuple<A, B>(a: A, b: B): [A, B] {
+  return [a, b]
+}
+
+export type Opt<T> = T | null | undefined
+
+export function unOpt<T>(x: Opt<T>): T {
+  switch (x) {
+    case null:
+      throw new Error('unexpcted null')
+    case undefined:
+      throw new Error('unexpcted undefined')
+    default:
+      return x
+  }
+}

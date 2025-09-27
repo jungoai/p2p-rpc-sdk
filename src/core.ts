@@ -11,85 +11,64 @@ export const UPDATE_INTERVAL_MAIN = 30
 
 // prettier-ignore
 export type P2pProviderState<T> = {
-  urls:             Urls    // urls are without chain-id
-  // TODO: rename
-  fallbackProvider: T       // generated type from @urls to be used in app
+  inner:            T       // generated type from @urls to be used in app
+  urls:             Url[]   // urls are without chain-id
   updateInterval:   Second  // NOTE: make sure time interval is relevant to
                             // p2p nodes ping interval 5 in test, 30 in production, 
                             // Default: 5 second
   intervalId:       ReturnType<typeof setInterval> | null
-}
-
-export class Urls {
-  private _inner: Url[]
-
-  constructor(urls: Url[]) {
-    urls.sort() // NOTE: we always store sorted urls for later comparison to new urls
-    this._inner = urls
-  }
-
-  get inner(): Url[] {
-    return this._inner
-  }
-
-  haveDiffWith(rhs: Urls): boolean {
-    return (
-      this._inner.length !== rhs.inner.length ||
-      this._inner.some((val, i) => val !== rhs.inner[i])
-    )
-  }
+  mutInner:         (inner: T, newInner: T) => void, 
 }
 
 // TODO: at first check ping of each url, remove failed urls
 export async function mkP2pProviderState<T>(
   url: Url,
-  mkFallback: (newUrls: Urls) => T,
+  mkInner: (newUrls: Url[]) => Promise<T>,
+  mutInner: (inner: T, newInner: T) => void,
   updateInterval: Second = UPDATE_INTERVAL_MAIN
 ): Promise<P2pProviderState<T>> {
-  const urls = new Urls(await listProviderUrls(url))
+  const urls = await listProviderUrls(url)
 
-  debug('all urls:', urls.inner)
+  debug('all urls:', urls)
 
-  const p2pps: P2pProviderState<T> = {
+  const pps: P2pProviderState<T> = {
+    inner: await mkInner(urls),
     urls,
-    fallbackProvider: mkFallback(urls),
     updateInterval,
     intervalId: null,
+    mutInner,
   }
 
   const id = setInterval(
-    () => updateFallback(p2pps, mkFallback),
+    () => updateFallback(pps, mkInner),
     updateInterval * 1000
   )
 
-  p2pps.intervalId = id
+  pps.intervalId = id
 
-  return p2pps
+  return pps
 }
 
-export function teardownP2ppsUpdater(p2pps: P2pProviderState<any>) {
-  const i = p2pps.intervalId
+export function teardownP2ppsUpdater(pps: P2pProviderState<any>) {
+  const i = pps.intervalId
   if (i !== null) clearInterval(i)
-  p2pps.intervalId = null
+  pps.intervalId = null
 }
 
 async function updateFallback<T>(
-  p2pp: P2pProviderState<T>,
-  mkFallback: (newUrls: Urls) => T
+  pps: P2pProviderState<T>,
+  mkInner: (newUrls: Url[]) => Promise<T>
 ) {
   debug('Checking for updating Fallback')
-  for (const url of p2pp.urls.inner) {
+  for (const url of pps.urls) {
     try {
-      const newUrls = new Urls(await listProviderUrls(url))
-
-      if (newUrls.haveDiffWith(p2pp.urls)) {
-        debug('Updating Fallback')
-        debug('newUrls: ', newUrls.inner)
-        p2pp.urls = newUrls
-        p2pp.fallbackProvider = mkFallback(newUrls)
-
-        debug('Fallback updated')
-      }
+      const newUrls = await listProviderUrls(url)
+      debug('Updating Fallback')
+      debug('newUrls: ', newUrls)
+      pps.urls = newUrls
+      const newInner = await mkInner(newUrls)
+      pps.mutInner(pps.inner, newInner)
+      debug('Fallback updated')
       return
     } catch {
       debug(`failed to fetch from ${url}, trying next url.`)
@@ -140,6 +119,6 @@ export async function listProviderUrls(url: Url): Promise<Url[]> {
   }
 }
 
-export function urlWithChainId(url: Url, chainId: ChainID): Url {
+export function mkFullUrl(url: Url, chainId: ChainID): Url {
   return concatPath(url, chainId.toString())
 }

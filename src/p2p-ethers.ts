@@ -14,11 +14,12 @@ import {
   settings as coreSettings,
   teardownP2ppsUpdater,
   Url,
-  Urls,
-  urlWithChainId,
+  mkFullUrl,
   Second,
   UPDATE_INTERVAL_MAIN,
 } from './core'
+
+///////////////////////////////////////////////////////////////////////////////
 
 export class P2pProvider extends AbstractProvider {
   #state: P2pProviderState<FallbackProvider>
@@ -33,15 +34,18 @@ export class P2pProvider extends AbstractProvider {
     chainId: ChainID,
     updateInterval: Second = UPDATE_INTERVAL_MAIN
   ): Promise<P2pProvider> {
-    const mkFallback = (newUrls: Urls) => {
-      const p = newUrls.inner.map(
-        (url) => new ethers.JsonRpcProvider(urlWithChainId(url, chainId))
+    const mkFallback = async (newUrls: Url[]) => {
+      const p = newUrls.map(
+        (url) => new ethers.JsonRpcProvider(mkFullUrl(url, chainId))
       )
       // .map((p) => ({ provider: p, weight: 1, priority: 1 })) // TODO: consider it
       return new ethers.FallbackProvider(p)
     }
+
+    const mutFn = (x: FallbackProvider, newX: FallbackProvider) => (x = newX)
+
     return new P2pProvider(
-      await mkP2pProviderState(url, mkFallback, updateInterval)
+      await mkP2pProviderState(url, mkFallback, mutFn, updateInterval)
     )
   }
 
@@ -53,11 +57,11 @@ export class P2pProvider extends AbstractProvider {
   // AbstractProvider methods
 
   async _detectNetwork(): Promise<Network> {
-    return this.#state.fallbackProvider._detectNetwork()
+    return this.#state.inner._detectNetwork()
   }
 
   async _perform<T = any>(req: PerformActionRequest): Promise<T> {
-    return this.#state.fallbackProvider._perform(req)
+    return this.#state.inner._perform(req)
   }
 }
 
