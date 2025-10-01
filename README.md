@@ -99,18 +99,12 @@ The lines have changed:
 
 For more information checkout [examples](https://github.com/jungoai/p2p-rpc-sdk/tree/main/examples) directory.
 
-### Set log level
-
-```bash
-LOG_LEVEL="debug" npm run example:ethers:2
-```
-
 ## ⚙️ How It Works
 
 1. **Bootstrap** – The client connects to the p2prpc network and fetches available node addresses.
 2. **Address Sync** – The client keeps its address list updated automatically.
 3. **Request Handling** – When making a blockchain call:
-    - The SDK selects an available node.
+    - The SDK selects an best available node base of latency and stability.
     - If the node fails, it retries with another one.
     - Requests complete seamlessly without developer intervention.
 
@@ -118,6 +112,9 @@ LOG_LEVEL="debug" npm run example:ethers:2
 
 - [x] Fault Tolerance
 - [x] Drop-in replacement to favorites library like Wagmi and Ethers
-- [ ] Node selection strategies (latency, region, capacity).
+- [ ] Node selection strategies base on:
+  - [x] latency
+  - [x] stability
+  - [ ] region
+  - [ ] capacity
 - [ ] SDK bindings for Python, Rust, and Go.
-- [ ] Node reputation and health monitoring.
