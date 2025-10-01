@@ -104,7 +104,7 @@ For more information checkout [examples](https://github.com/jungoai/p2p-rpc-sdk/
 1. **Bootstrap** – The client connects to the p2prpc network and fetches available node addresses.
 2. **Address Sync** – The client keeps its address list updated automatically.
 3. **Request Handling** – When making a blockchain call:
-    - The SDK selects an best available node base of latency and stability.
+    - The SDK selects the best available node base on latency and stability.
     - If the node fails, it retries with another one.
     - Requests complete seamlessly without developer intervention.
 
