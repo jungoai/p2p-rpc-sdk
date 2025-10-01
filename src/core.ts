@@ -122,3 +122,82 @@ export async function listProviderUrls(url: Url): Promise<Url[]> {
 export function mkFullUrl(url: Url, chainId: ChainID): Url {
   return concatPath(url, chainId.toString())
 }
+
+type SamplePerReq = { latency: number; success: number }
+type Sample = SamplePerReq[]
+
+export type RankOpts<T> = {
+  sampleCount: number
+  latencyWeight: number
+  stabilityWeight: number
+  ping: (node: T) => Promise<void>
+}
+
+export type Rank<T> = (nodes: readonly T[]) => Promise<T[]>
+
+// TODO: consider about equal ranks
+export function mkRank<T>(opts: RankOpts<T>): Rank<T> {
+  const { sampleCount, latencyWeight, stabilityWeight, ping } = opts
+
+  const samples: Sample[] = []
+
+  const rank_ = async (nodes: readonly T[]): Promise<T[]> => {
+    // 1. Take a sample from each node.
+    const sample: Sample = await Promise.all(
+      nodes.map(async (node) => {
+        const start = Date.now()
+        let end: number
+        let success: number
+        try {
+          // await provider.send('net_listening', [])
+          await ping(node)
+          success = 1
+        } catch {
+          success = 0
+        } finally {
+          end = Date.now()
+        }
+        const latency = end - start
+        return { latency, success }
+      })
+    )
+
+    // 2. Store the sample. If we have more than `sampleCount` samples, remove
+    // the oldest sample.
+    samples.push(sample)
+    if (samples.length > sampleCount) samples.shift()
+
+    // 3. Calculate the max latency from samples.
+    const maxLatency = Math.max(
+      ...samples.map((sample) =>
+        Math.max(...sample.map(({ latency }) => latency))
+      )
+    )
+
+    // 4. Calculate the score for each Transport.
+    const scores = nodes
+      .map((_, i) => {
+        const latencies = samples.map((sample) => sample[i].latency)
+        const meanLatency =
+          latencies.reduce((acc, latency) => acc + latency, 0) /
+          latencies.length
+        const latencyScore = 1 - meanLatency / maxLatency
+
+        const successes = samples.map((sample) => sample[i].success)
+        const stabilityScore =
+          successes.reduce((acc, success) => acc + success, 0) /
+          successes.length
+
+        if (stabilityScore === 0) return [0, i]
+        return [
+          latencyWeight * latencyScore + stabilityWeight * stabilityScore,
+          i,
+        ]
+      })
+      .sort((a, b) => b[0] - a[0])
+
+    return scores.map(([, i]) => nodes[i])
+  }
+
+  return rank_
+}

@@ -17,6 +17,7 @@ import {
   mkFullUrl,
   Second,
   UPDATE_INTERVAL_MAIN,
+  mkRank,
 } from './core'
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,12 +35,26 @@ export class P2pProvider extends AbstractProvider {
     chainId: ChainID,
     updateInterval: Second = UPDATE_INTERVAL_MAIN
   ): Promise<P2pProvider> {
+    const rank = mkRank({
+      sampleCount: 10,
+      latencyWeight: 0.3,
+      stabilityWeight: 0.7,
+      ping: (t: ethers.JsonRpcProvider) => t.send('net_listening', []),
+    })
+
     const mkFallback = async (newUrls: Url[]) => {
       const p = newUrls.map(
         (url) => new ethers.JsonRpcProvider(mkFullUrl(url, chainId))
       )
-      // .map((p) => ({ provider: p, weight: 1, priority: 1 })) // TODO: consider it
-      return new ethers.FallbackProvider(p)
+
+      // TODO: consider same ranks (to use weight and setting the same priority)
+      const ranked = (await rank(p)).map((p, idx) => ({
+        provider: p,
+        priority: idx + 1,
+        weight: 1,
+      }))
+
+      return new ethers.FallbackProvider(ranked)
     }
 
     const mutFn = (x: FallbackProvider, newX: FallbackProvider) => (x = newX)

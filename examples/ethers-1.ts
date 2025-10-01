@@ -1,5 +1,3 @@
-// Simple example
-
 import { UPDATE_INTERVAL_TEST } from '../src/core.ts'
 import { logSettings, P2pProvider, withP2pProvider } from '../src/index.ts'
 
