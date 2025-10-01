@@ -72,7 +72,7 @@ import { P2pWagmiTransports } from 'p2p-rpc-sdk'
 
 const URL = 'https://evm-rpcs.jungoai.xyz/'
 
-const p2pTrans = await P2pWagmiTransports.new(URL, [mainnet.id, sepolia.id])
+const p2pWagmi = await P2pWagmi.new(URL, [mainnet])
 
 export const config = createConfig({
   chains: [mainnet, sepolia],
@@ -82,8 +82,8 @@ export const config = createConfig({
     walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
   ],
   transports: {
-    [mainnet.id]: p2pTrans.transports().get(mainnet.id), // <- http()
-    [sepolia.id]: p2pTrans.transports().get(sepolia.id), // <- http()
+    [mainnet.id]: p2pWagmi.transports().get(mainnet.id), // <- http()
+    [sepolia.id]: p2pWagmi.transports().get(sepolia.id), // <- http()
   },
 })
 ```
@@ -92,21 +92,12 @@ The lines have changed:
 ```diff
 - [mainnet.id]: http(),
 - [sepolia.id]: http(),
-+ [mainnet.id]: p2pTrans.transports().get(mainnet.id),
-+ [sepolia.id]: p2pTrans.transports().get(sepolia.id),
++ [mainnet.id]: p2pWagmi.transports().get(mainnet.id),
++ [sepolia.id]: p2pWagmi.transports().get(sepolia.id),
 ```
 
 
 For more information checkout [examples](https://github.com/jungoai/p2p-rpc-sdk/tree/main/examples) directory.
-
-### Run Example
-
-```bash
-npm run example:ethers:1
-npm run example:ethers:2
-npm run example:wagmi:1
-npm run example:wagmi:2
-```
 
 ### Set log level
 

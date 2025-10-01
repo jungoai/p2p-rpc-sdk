@@ -9,7 +9,7 @@ const URL = 'https://evm-rpcs.jungoai.xyz/'
 
 logSettings.level = 'debug'
 
-const p2pTrans = await P2pWagmi.new(URL, [mainnet.id])
+const p2pWagmi = await P2pWagmi.new(URL, [mainnet])
 
 export const config = createConfig({
   // chains: [mainnet, sepolia],
@@ -20,7 +20,7 @@ export const config = createConfig({
     walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
   ],
   transports: {
-    [mainnet.id]: unOpt(p2pTrans.transports().get(mainnet.id)),
+    [mainnet.id]: unOpt(p2pWagmi.transports().get(mainnet.id)),
     // [sepolia.id]: http(),
   },
 })
